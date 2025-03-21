@@ -6,7 +6,8 @@ from langchain_chroma import Chroma
 from langchain.chains import create_retrieval_chain, LLMChain
 from langchain import hub
 from flask_cors import CORS  # Import CORS
-
+import os
+from twilio.rest import Client
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for your app
@@ -40,7 +41,7 @@ def get_defect_analysis():
     try:
         data = request.json
         defect = data.get("defect")
-
+        print("defect :",defect)
         if not defect:
             return jsonify({"error": "Missing 'defect' parameter"}), 400
 
@@ -70,7 +71,25 @@ def get_defect_analysis():
         print(f"Error occurred: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/call', methods=['GET'])
+def call():
+        # Download the helper library from https://www.twilio.com/docs/python/install
+    
 
+    # Set environment variables for your credentials
+    # Read more at http://twil.io/secure
+
+    account_sid = "ACa8aca5271e0cdccf3b906f65c48e0ad8"
+    auth_token = "eb375fe322c72a2090aa64e2d5807ea0"
+    client = Client(account_sid, auth_token)
+
+    call = client.calls.create(
+    url="http://demo.twilio.com/docs/voice.xml",
+    to="+212684992113",
+    from_="+19564767521"
+    )
+
+    print(call.sid)
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",debug=True, port=5000)
+    app.run(debug=True, port=5000)
